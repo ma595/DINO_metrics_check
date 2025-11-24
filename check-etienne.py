@@ -2,31 +2,86 @@
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 
-def temperature_BWbox_metric(thetao, file_mask, depth_box=3000):
-    depth = thetao.nav_lev
-    lat   = thetao.nav_lat
+# Table row	|  matching file
+# Data	| (this is the DINO reference)
+# No Constraint	| generated_restart_no_C_1_4deg.nc
+# Constraint | 	generated_C1_restart.nc
 
-    # Deep Water region (to be excluded)
-    deep_trop = (depth < depth_box) & (abs(lat) < 30)
+# def temperature_BWbox_metric(thetao, file_mask, depth_box=3000):
+#     depth = thetao.nav_lev
+#     lat   = thetao.nav_lat
 
-    # Bottom Water = complement of deep_trop
-    bw_mask = (~deep_trop) & (file_mask.tmask.squeeze() == 1)
+#     # Deep Water region (to be excluded)
+#     deep_trop = (depth < depth_box) & (abs(lat) < 30)
 
-    e1t = file_mask.e1t.squeeze()
-    e2t = file_mask.e2t.squeeze()
-    e3t = file_mask.e3t_0.squeeze()
+#     # Bottom Water = complement of deep_trop
+#     bw_mask = (~deep_trop) & (file_mask.tmask.squeeze() == 1)
 
-    volume = (e1t * e2t * e3t).where(bw_mask)
-    t_BW   = thetao.where(bw_mask)
+#     e1t = file_mask.e1t.squeeze()
+#     e2t = file_mask.e2t.squeeze()
+#     e3t = file_mask.e3t_0.squeeze()
 
-    num = (t_BW * volume).sum(dim=["nav_lat", "nav_lon", "nav_lev"])
-    den = volume.sum(dim=["nav_lat", "nav_lon", "nav_lev"])
+#     volume = (e1t * e2t * e3t).where(bw_mask)
+#     t_BW   = thetao.where(bw_mask)
 
-    return num / den
+#     num = (t_BW * volume).sum(dim=["nav_lat", "nav_lon", "nav_lev"])
+#     den = volume.sum(dim=["nav_lat", "nav_lon", "nav_lev"])
+
+#     return num / den
+
+def read_numpy(depth=1500):
+    # Path to your file
+    path = Path("./Gorce-data/generated_npy_files/no_constraint_clean/toce.npy")
+
+    mask_path = Path("/Users/matt/work/nemo/spinup-evaluation/check/DINO-Fusion/Results/analysis_scripts/data/DINO_1deg_mesh_mask_david_renamed.nc")
+
+    # Load the array
+    toce = np.load(path)
+
+    mesh_mask = xr.load_dataset(mask_path)
+
+    # # Print basic information
+    # print("Type:", type(toce))
+    # print("Shape:", toce.shape)
+    # print("Dtype:", toce.dtype)
+
+    # # Inspect min/max/mean
+    # print("Min:", np.nanmin(toce))
+    # print("Max:", np.nanmax(toce))
+    # print("Mean:", np.nanmean(toce))
+
+    # # Optionally inspect a slice
+    # print("numpy vertical levels: ", toce.shape[1])
+    # # print("Sample slice (level 0):")
+    # print("numpy shape: ", toce[0].shape)
+    mesh_mask = mesh_mask.rename({"y" : "nav_lat", "x" : "nav_lon"})
+    # print(mesh_mask)
+
+    # Build DataArray with same dims as mesh_mask
+    toce_da = xr.DataArray(
+        toce.mean(axis=0),
+        dims=("nav_lev", "nav_lat", "nav_lon"),
+        coords={
+            "nav_lev": mesh_mask["nav_lev"],  # 1D depth index
+            "nav_lat": (("nav_lat", "nav_lon"), mesh_mask["nav_lat"].values),
+            "nav_lon": (("nav_lat", "nav_lon"), mesh_mask["nav_lon"].values),
+        },
+        name="toce",
+        attrs={
+            "long_name": "Conservative temperature (generated)",
+            "units": "degC",  # or whatever is correct for your file
+        },
+    )
+
+    print(temperature_BWbox_metric(toce_da, mesh_mask, depth))
 
 
-def temperature_BWbox_metric_2(thetao,   file_mask, depth_box=3000):
+      
+
+
+def temperature_BWbox_metric(thetao,   file_mask, depth_box=3000):
     """
         Metric Extraction Function :
         Average Temperature in a U-shaped "Bottom Water" box corresponding to waters below 3000m or beyond 30 degrees of latitude North and South.
@@ -52,6 +107,7 @@ def temperature_BWbox_metric_2(thetao,   file_mask, depth_box=3000):
 
     """
 
+    breakpoint()
     t_BW=thetao.where(1-(thetao.nav_lev<depth_box)*(abs(thetao.nav_lat)<30))
 
     # Computing Area Weights from Mask over Box
@@ -151,37 +207,36 @@ def temperature_DWbox_metric(thetao, file_mask, depth_box=1500):
     )
 
 
-
 # path_to_restart_ref = "../spinup-data/Gorce-data/restart_files_1_4deg/reference_restart_file/DINO_12960000_restart.nc"
-
 # path_to_restart_ref_david = "../spinup-data/Gorce-data/restart_files_1_4deg/restart_C2_David/DINO_11232000_restart.nc"
-
 # restart_ref = xr.load_dataset(path_to_restart_ref)
 # restart_ref_david = xr.load_dataset(path_to_restart_ref_david)
 
-mesh_mask_path = "./Gorce-data/Dinonline/restart0/mesh_mask.nc"
-mesh_mask = xr.load_dataset(mesh_mask_path)
-mesh_mask = mesh_mask.rename({'y':'nav_lat','x':'nav_lon'})
-
-restart_C1 = xr.load_dataset("./Gorce-data/restart_files_1_4deg/gen3/generated_C1_restart.nc")
-restart_C1 = restart_C1.rename({"y" : "nav_lat", "x" : "nav_lon"})
-restart_C1 = restart_C1.rename({"lat" : "nav_lat", "lon" : "nav_lon"})
-
-# temperature_BWbox_metric(restart_C1.tn, mesh_mask_new, 3000)
-
-temperature = restart_C1.tn
+restart = False
 depth = 1500
 
-print(
-    "Bottom water temperature:",
-    temperature_BWbox_metric(temperature, mesh_mask, depth_box=1500).item(),
-    temperature_BWbox_metric_2(temperature, mesh_mask, depth_box=1500).item(),
-)
-print(
-    "Deep water temperature:",
-    temperature_DWbox_metric(temperature, mesh_mask).item(),
-)
-    
-visualise_BWbox(restart_C1)
+if restart:
+    mesh_mask_path = "./Gorce-data/Dinonline/restart0/mesh_mask.nc"
+    mesh_mask = xr.load_dataset(mesh_mask_path)
+    mesh_mask = mesh_mask.rename({'y':'nav_lat','x':'nav_lon'})
 
-print(restart_C1.nav_lat)
+    restart_C1 = xr.load_dataset("./Gorce-data/restart_files_1_4deg/gen3/generated_C1_restart.nc")
+    restart_C1 = restart_C1.rename({"y" : "nav_lat", "x" : "nav_lon"})
+    restart_C1 = restart_C1.rename({"lat" : "nav_lat", "lon" : "nav_lon"})
+
+    temperature = restart_C1.tn
+
+    print(
+        "Bottom water temperature:",
+        temperature_BWbox_metric(temperature, mesh_mask, depth_box=depth).item(),
+    )
+    print(
+        "Deep water temperature:",
+        temperature_DWbox_metric(temperature, mesh_mask).item(),
+    )
+        
+    visualise_BWbox(restart_C1)
+
+    print(restart_C1.nav_lat)
+
+read_numpy(depth)

@@ -1,22 +1,30 @@
-Bottom water temperature: 3.2119008295222087 3.2119008295222087
-Deep water temperature: 5.533188692873841
-Deepest ocean level index: 34
-Depth there: 3757.30908203125
-Any BW below that depth? False
-<xarray.DataArray 'nav_lat' (nav_lat: 797, nav_lon: 242)> Size: 771kB
-array([[-70.023254, -70.023254, -70.023254, ..., -70.023254, -70.023254,
-        -70.023254],
-       [-69.93767 , -69.93767 , -69.93767 , ..., -69.93767 , -69.93767 ,
-        -69.93767 ],
-       [-69.85174 , -69.85174 , -69.85174 , ..., -69.85174 , -69.85174 ,
-        -69.85174 ],
-       ...,
-       [ 69.85174 ,  69.85174 ,  69.85174 , ...,  69.85174 ,  69.85174 ,
-         69.85174 ],
-       [ 69.93767 ,  69.93767 ,  69.93767 , ...,  69.93767 ,  69.93767 ,
-         69.93767 ],
-       [ 70.023254,  70.023254,  70.023254, ...,  70.023254,  70.023254,
-         70.023254]], shape=(797, 242), dtype=float32)
-Coordinates:
-    nav_lon  (nav_lat, nav_lon) float32 771kB -0.125 0.125 0.375 ... 59.88 60.12
-    nav_lat  (nav_lat, nav_lon) float32 771kB -70.02 -70.02 ... 70.02 70.02
+Traceback (most recent call last):
+  File "/Users/matt/work/nemo/spinup-evaluation/check/check-etienne.py", line 2, in <module>
+    import xarray as xr
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/xarray/__init__.py", line 3, in <module>
+    from xarray import coders, groupers, testing, tutorial, ufuncs
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/xarray/coders.py", line 6, in <module>
+    from xarray.coding.times import CFDatetimeCoder, CFTimedeltaCoder
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/xarray/coding/times.py", line 12, in <module>
+    import pandas as pd
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/__init__.py", line 49, in <module>
+    from pandas.core.api import (
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/api.py", line 47, in <module>
+    from pandas.core.groupby import (
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/groupby/__init__.py", line 1, in <module>
+    from pandas.core.groupby.generic import (
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/groupby/generic.py", line 68, in <module>
+    from pandas.core.frame import DataFrame
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/frame.py", line 192, in <module>
+    from pandas.core.series import Series
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/series.py", line 164, in <module>
+    from pandas.core.tools.datetimes import to_datetime
+  File "/Users/matt/miniforge3-arm/lib/python3.10/site-packages/pandas/core/tools/datetimes.py", line 63, in <module>
+    from pandas.arrays import (
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 975, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_data
+KeyboardInterrupt
