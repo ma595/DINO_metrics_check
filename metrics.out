@@ -1,4 +1,4 @@
-Bottom water temperature: 3.2119008295222087
-Deep water temperature: 5.533188692873841
 Shape: (8, 36, 199, 62)
-3.3828493350775095
+Numpy file: toce.npy
+Mesh mask name: DINO_1deg_mesh_mask_david_renamed.nc
+Bottom water temperature: Bug: 4.948800070866768, Correct: 3.4699605209075073
